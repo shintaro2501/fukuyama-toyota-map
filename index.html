@@ -9,6 +9,9 @@
             size: A4;
             margin: 20mm;
         }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
         body {
             font-family: "Helvetica Neue", Arial, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
             margin: 0;
@@ -119,15 +122,21 @@
             margin-right: 8px;
             font-size: 20px;
         }
-        .info-item {
+        .shop-info .info-item {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            column-gap: 12px;
+            align-items: center;
             margin: 8px 0;
-            font-size: 14px;
         }
         .info-label {
             font-weight: bold;
             color: #666;
-            display: inline-block;
-            width: 80px;
+            white-space: nowrap;
+        }
+        .info-content {
+            justify-self: start;
+            font-size: 14px;
         }
         .alert-box {
             background: #fff3cd;
@@ -395,19 +404,24 @@
             <div class="shop-info">
                 <h3>店舗情報</h3>
                 <div class="info-item">
-                    <span class="info-label">店舗名：</span>トヨタレンタカー福山駅前店
+                    <span class="info-label">店舗名：</span>
+                    <span class="info-content">トヨタレンタカー福山駅前店</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">住所：</span>〒720-0066<br>　　　　　広島県福山市三之丸町7-20
+                    <span class="info-label">住所：</span>
+                    <span class="info-content">〒720-0066 広島県福山市三之丸町7-20</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">電話：</span>084-973-0100
+                    <span class="info-label">電話：</span>
+                    <span class="info-content">084-973-0100</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">営業時間：</span>8:00～20:00（年中無休）
+                    <span class="info-label">営業時間：</span>
+                    <span class="info-content">8:00～20:00（年中無休）</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">徒歩時間：</span>JR福山駅南口から約5分（約400m）
+                    <span class="info-label">徒歩時間：</span>
+                    <span class="info-content">JR福山駅南口から約5分（約400m）</span>
                 </div>
             </div>
         </div>
