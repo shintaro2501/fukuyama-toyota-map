@@ -278,7 +278,8 @@
             align-items: center;
             flex-wrap: wrap;
             flex-shrink: 0;
-            min-height: 70px;
+            min-height: 80px;
+            overflow: visible;
         }
         .address-input {
             flex: 1;
@@ -298,25 +299,31 @@
             .interactive-controls {
                 flex-direction: column;
                 align-items: stretch;
-                min-height: 120px;
+                min-height: 160px;
                 gap: 8px;
+                padding: 15px;
             }
             .map-control-btn {
                 width: 100%;
                 text-align: center;
-                padding: 10px 16px;
+                padding: 12px 16px;
                 font-size: 14px;
+                margin-bottom: 5px;
             }
             .address-input {
                 width: 100%;
                 max-width: none;
-                margin-bottom: 4px;
+                margin-bottom: 8px;
+                padding: 10px 12px;
             }
             .map-container {
-                height: 350px;
+                height: 400px;
             }
             #googleMap {
-                height: 230px !important;
+                height: 240px !important;
+            }
+            .interactive-map {
+                height: 100%;
             }
         }
         @media print {
