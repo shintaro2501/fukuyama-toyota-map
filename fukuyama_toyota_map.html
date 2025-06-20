@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JR福山駅からトヨタレンタカー福山駅前店 案内マップ</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: white;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #e60012;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            color: #e60012;
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            font-weight: bold;
+        }
+        .header p {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 420px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+            background: #f8f9fa;
+            overflow: hidden;
+        }
+        .route-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .route-steps {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #0066cc;
+        }
+        .route-steps h3 {
+            color: #0066cc;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+        .route-steps h3::before {
+            content: "🚶‍♂️";
+            margin-right: 8px;
+            font-size: 20px;
+        }
+        .step {
+            margin: 12px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        .step-number {
+            background: #0066cc;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .step-text {
+            font-size: 14px;
+            color: #333;
+        }
+        .landmark {
+            color: #e60012;
+            font-weight: bold;
+        }
+        .shop-info {
+            background: #fff0f0;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #e60012;
+        }
+        .shop-info h3 {
+            color: #e60012;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+        .shop-info h3::before {
+            content: "🏢";
+            margin-right: 8px;
+            font-size: 20px;
+        }
+        .info-item {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #666;
+            display: inline-block;
+            width: 80px;
+        }
+        .alert-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        .alert-box h4 {
+            margin: 0 0 10px 0;
+            color: #856404;
+            display: flex;
+            align-items: center;
+        }
+        .alert-box h4::before {
+            content: "⚠️";
+            margin-right: 8px;
+        }
+        .map-svg {
+            width: 100%;
+            height: 100%;
+        }
+        .station {
+            fill: #0066cc;
+            stroke: #004499;
+            stroke-width: 2;
+        }
+        .shop {
+            fill: #e60012;
+            stroke: #cc0000;
+            stroke-width: 2;
+        }
+        .landmark-point {
+            fill: #ff9900;
+            stroke: #cc7700;
+            stroke-width: 2;
+        }
+        .route-line {
+            stroke: #0066cc;
+            stroke-width: 4;
+            fill: none;
+            stroke-dasharray: 8,4;
+            marker-end: url(#arrowhead);
+        }
+        .street {
+            stroke: #ccc;
+            stroke-width: 2;
+            fill: none;
+        }
+        .building {
+            fill: #e8e8e8;
+            stroke: #ccc;
+            stroke-width: 1;
+        }
+        .label {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .station-label {
+            fill: #004499;
+        }
+        .shop-label {
+            fill: #cc0000;
+        }
+        .landmark-label {
+            fill: #cc7700;
+        }
+        .distance-time {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            margin: 15px 0;
+            border: 1px solid #b3d9f7;
+        }
+        .distance-time strong {
+            color: #0066cc;
+            font-size: 16px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 12px;
+        }
+        .static-map {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .map-controls-overlay {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .map-control-btn {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+        }
+        .map-control-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .map-control-btn.primary {
+            background: rgba(0, 102, 204, 0.95);
+            color: white;
+            border-color: #0066cc;
+        }
+        .map-control-btn.primary:hover {
+            background: #0066cc;
+        }
+        .map-control-btn.secondary {
+            background: rgba(230, 0, 18, 0.95);
+            color: white;
+            border-color: #e60012;
+        }
+        .map-control-btn.secondary:hover {
+            background: #e60012;
+        }
+        .interactive-map {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .interactive-controls {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 0 0 6px 6px;
+            align-items: center;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            min-height: 50px;
+        }
+        .address-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .address-input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+        }
+        @media print {
+            .map-controls-overlay,
+            .interactive-controls {
+                display: none;
+            }
+            #interactiveMap {
+                display: none !important;
+            }
+            #staticMap {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>トヨタレンタカー福山駅前店 ご来店案内</h1>
+            <p>JR福山駅南口から徒歩約5分</p>
+            <p>〒720-0066 広島県福山市三之丸町7-20</p>
+        </div>
+
+        <div class="distance-time">
+            <strong>📍 JR福山駅南口 → トヨタレンタカー福山駅前店</strong><br>
+            <strong>徒歩約5分（約400m）</strong>
+        </div>
+
+        <div class="map-container">
+            <!-- Static Map (初期表示) -->
+            <div id="staticMap" class="static-map">
+                <img id="staticMapImage" 
+                     src="" 
+                     alt="JR福山駅からトヨタレンタカー福山駅前店へのルートマップ" 
+                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+                
+                <!-- Loading indicator -->
+                <div id="mapLoading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.9); padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 18px; color: #0066cc; margin-bottom: 10px;">📍</div>
+                    <div style="color: #666;">最適なルートを計算中...</div>
+                </div>
+                
+                <!-- Map Controls Overlay -->
+                <div class="map-controls-overlay">
+                    <button onclick="activateInteractiveMap()" class="map-control-btn primary">
+                        🗺️ マップを操作する
+                    </button>
+                    <button onclick="openGoogleMapsNavi()" class="map-control-btn secondary">
+                        📱 現在地からナビ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Map (切り替え後) -->
+            <div id="interactiveMap" class="interactive-map" style="display: none;">
+                <div id="googleMap" style="width: 100%; height: 350px; border-radius: 6px 6px 0 0; flex-grow: 1;"></div>
+                <div class="interactive-controls">
+                    <button onclick="showStaticMap()" class="map-control-btn">
+                        ← 元の表示に戻る
+                    </button>
+                    <input type="text" id="startAddress" placeholder="出発地を入力（例：広島駅）" class="address-input">
+                    <button onclick="calculateCustomRoute()" class="map-control-btn primary">
+                        🔍 ルート検索
+                    </button>
+                    <button onclick="openGoogleMapsNavi()" class="map-control-btn secondary">
+                        📱 Googleマップで開く
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="route-info">
+            <div class="route-steps">
+                <h3>徒歩ルート</h3>
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">JR福山駅<strong>南口</strong>から出る</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text"><strong>右方向</strong>（九州方向）に進む</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text"><span class="landmark">ダイワロイネットホテル</span>の手前または奥で<strong>左折</strong>して路地へ入る</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">突き当たったら<strong>右に曲がり</strong>直進</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-text"><strong>左手</strong>にトヨタレンタカー福山駅前店</div>
+                </div>
+            </div>
+
+            <div class="shop-info">
+                <h3>店舗情報</h3>
+                <div class="info-item">
+                    <span class="info-label">店舗名：</span>トヨタレンタカー福山駅前店
+                </div>
+                <div class="info-item">
+                    <span class="info-label">住所：</span>〒720-0066<br>　　　　　広島県福山市三之丸町7-20
+                </div>
+                <div class="info-item">
+                    <span class="info-label">電話：</span>084-973-0100
+                </div>
+                <div class="info-item">
+                    <span class="info-label">営業時間：</span>8:00～20:00（年中無休）
+                </div>
+                <div class="info-item">
+                    <span class="info-label">徒歩時間：</span>JR福山駅南口から約5分（約400m）
+                </div>
+            </div>
+        </div>
+
+        <div class="alert-box">
+            <h4>ご来店時のご注意</h4>
+            <p><strong>看板が見えにくい立地のため、以下をご活用ください：</strong></p>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>スマートフォンの地図アプリと併用してお越しください</li>
+                <li>店舗に近づけばトヨタレンタカーの看板が見えます</li>
+                <li>迷われた場合は店舗（084-973-0100）までお電話ください</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>このマップは来店案内用です。最新の営業時間等は店舗にご確認ください。</p>
+            <p>お車でお越しの場合は、店舗までお問い合わせください。</p>
+        </div>
+    </div>
+
+    <!-- Google Maps JavaScript API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGUorGUfy--oERdupd_6FoUQc-xFR5WbE&libraries=geometry,places&callback=initMap"></script>
+    
+    <script>
+        // 店舗の座標
+        const SHOP_LOCATION = { lat: 34.4875, lng: 133.3601 };
+        const STATION_LOCATION = { lat: 34.489004912054284, lng: 133.3624000319858 };
+        
+        let map;
+        let directionsService;
+        let directionsRenderer;
+
+        // Google Maps初期化
+        function initMap() {
+            // マップ作成（初期は非表示）
+            map = new google.maps.Map(document.getElementById('googleMap'), {
+                zoom: 17,
+                center: SHOP_LOCATION,
+                mapTypeId: 'roadmap'
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                polylineOptions: {
+                    strokeColor: '#0066cc',
+                    strokeWeight: 4
+                }
+            });
+            directionsRenderer.setMap(map);
+
+            // 静的マップ用の実際のルートを取得
+            generateStaticMapWithRoute();
+
+            // デフォルトルートを設定
+            calculateRoute(STATION_LOCATION, SHOP_LOCATION);
+        }
+
+        // 実際の徒歩ルートを取得して静的マップを生成
+        function generateStaticMapWithRoute() {
+            const request = {
+                origin: STATION_LOCATION,
+                destination: SHOP_LOCATION,
+                travelMode: google.maps.TravelMode.WALKING,
+                unitSystem: google.maps.UnitSystem.METRIC,
+                avoidHighways: false,
+                avoidTolls: false
+            };
+
+            directionsService.route(request, (result, status) => {
+                if (status === 'OK') {
+                    console.log('Route calculation successful');
+                    console.log('Full result structure:', result);
+                    
+                    const route = result.routes[0];
+                    console.log('Route object:', route);
+                    console.log('Overview polyline object:', route.overview_polyline);
+                    
+                    let encodedPath = null;
+                    
+                    // より詳細なポリライン取得
+                    if (route && route.overview_polyline && route.overview_polyline.points) {
+                        encodedPath = route.overview_polyline.points;
+                        console.log('Successfully got encoded polyline:', encodedPath.substring(0, 50) + '...');
+                    } else {
+                        console.log('Trying alternative polyline access methods...');
+                        
+                        // 代替手段1: legs から詳細ポイントを取得
+                        if (route.legs && route.legs.length > 0) {
+                            const steps = route.legs[0].steps;
+                            const waypoints = [];
+                            
+                            steps.forEach(step => {
+                                waypoints.push(`${step.start_location.lat()},${step.start_location.lng()}`);
+                                waypoints.push(`${step.end_location.lat()},${step.end_location.lng()}`);
+                            });
+                            
+                            encodedPath = waypoints.join('|');
+                            console.log('Created waypoint path from steps:', waypoints.length, 'points');
+                        } else {
+                            console.log('No legs available, using manual path');
+                            encodedPath = createEnhancedManualPath();
+                        }
+                    }
+                    
+                    // 静的マップURLを構築
+                    const staticMapUrl = buildStaticMapUrl(encodedPath);
+                    console.log('Final static map URL:', staticMapUrl);
+                    
+                    // 静的マップを更新
+                    const mapImage = document.getElementById('staticMapImage');
+                    const loadingDiv = document.getElementById('mapLoading');
+                    
+                    mapImage.onload = function() {
+                        loadingDiv.style.display = 'none';
+                        console.log('Static map loaded successfully with route');
+                    };
+                    
+                    mapImage.onerror = function() {
+                        console.error('Failed to load static map image');
+                        showFallbackStaticMap();
+                    };
+                    
+                    mapImage.src = staticMapUrl;
+                } else {
+                    console.error('Direction service failed with status:', status);
+                    showFallbackStaticMap();
+                }
+            });
+        }
+
+        // より詳細な手動パス作成
+        function createEnhancedManualPath() {
+            // 福山駅から店舗までの実際の道路に沿った推定ルート
+            const detailedPoints = [
+                `${STATION_LOCATION.lat},${STATION_LOCATION.lng}`, // 福山駅南口
+                '34.4888,133.3620', // 駅前広場
+                '34.4886,133.3615', // 南へ進む
+                '34.4884,133.3610', // ローソン手前
+                '34.4882,133.3608', // ローソン位置（右折地点）
+                '34.4880,133.3605', // 右折後
+                '34.4878,133.3603', // 直進
+                `${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}` // トヨタレンタカー
+            ];
+            
+            console.log('Created enhanced manual path with', detailedPoints.length, 'points');
+            return detailedPoints.join('|');
+        }
+
+        // 静的マップURLを構築
+        function buildStaticMapUrl(pathData) {
+            const baseUrl = 'https://maps.googleapis.com/maps/api/staticmap';
+            const size = '600x400';
+            const mapType = 'roadmap';
+            const zoom = '16';
+            const apiKey = 'AIzaSyAGUorGUfy--oERdupd_6FoUQc-xFR5WbE';
+            
+            // マーカー設定
+            const startMarker = `markers=color:blue%7Clabel:S%7C${STATION_LOCATION.lat},${STATION_LOCATION.lng}`;
+            const endMarker = `markers=color:red%7Clabel:G%7C${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}`;
+            
+            // パス設定
+            let pathParam;
+            if (pathData && pathData.includes('|')) {
+                // 手動パス（座標リスト）
+                pathParam = `path=color:0x0066ccff%7Cweight:5%7C${pathData}`;
+            } else if (pathData) {
+                // エンコードされたポリライン
+                pathParam = `path=color:0x0066ccff%7Cweight:5%7Cenc:${pathData}`;
+            } else {
+                // 直線パス（最終手段）
+                pathParam = `path=color:0x0066ccff%7Cweight:5%7C${STATION_LOCATION.lat},${STATION_LOCATION.lng}%7C${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}`;
+            }
+            
+            const fullUrl = `${baseUrl}?size=${size}&maptype=${mapType}&zoom=${zoom}&${startMarker}&${endMarker}&${pathParam}&key=${apiKey}`;
+            
+            return fullUrl;
+        }
+
+        // フォールバック用の静的マップ
+        function showFallbackStaticMap() {
+            const mapImage = document.getElementById('staticMapImage');
+            const loadingDiv = document.getElementById('mapLoading');
+            
+            mapImage.src = `https://maps.googleapis.com/maps/api/staticmap?size=600x400&maptype=roadmap&markers=color:blue%7Clabel:S%7C${STATION_LOCATION.lat},${STATION_LOCATION.lng}&markers=color:red%7Clabel:G%7C${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}&zoom=16&key=AIzaSyAGUorGUfy--oERdupd_6FoUQc-xFR5WbE`;
+            
+            loadingDiv.innerHTML = '<div style="color: #e60012;">マップを読み込み中...</div>';
+            setTimeout(() => {
+                loadingDiv.style.display = 'none';
+            }, 2000);
+        }
+
+        // インタラクティブマップを表示
+        function activateInteractiveMap() {
+            document.getElementById('staticMap').style.display = 'none';
+            document.getElementById('interactiveMap').style.display = 'block';
+            
+            // マップサイズ調整
+            setTimeout(() => {
+                google.maps.event.trigger(map, 'resize');
+                map.setCenter(SHOP_LOCATION);
+            }, 100);
+        }
+
+        // 静的マップに戻る
+        function showStaticMap() {
+            document.getElementById('staticMap').style.display = 'block';
+            document.getElementById('interactiveMap').style.display = 'none';
+        }
+
+        // ルート計算
+        function calculateRoute(start, end) {
+            const request = {
+                origin: start,
+                destination: end,
+                travelMode: google.maps.TravelMode.WALKING
+            };
+
+            directionsService.route(request, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                } else {
+                    console.error('ルート計算エラー:', status);
+                }
+            });
+        }
+
+        // カスタムルート検索
+        function calculateCustomRoute() {
+            const startAddress = document.getElementById('startAddress').value;
+            if (!startAddress.trim()) {
+                alert('出発地を入力してください');
+                return;
+            }
+
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: startAddress }, (results, status) => {
+                if (status === 'OK') {
+                    const startLocation = results[0].geometry.location;
+                    calculateRoute(startLocation, SHOP_LOCATION);
+                } else {
+                    alert('住所が見つかりませんでした。正しい住所を入力してください。');
+                }
+            });
+        }
+
+        // 現在地取得してナビ開始
+        function openGoogleMapsNavi() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const googleMapsUrl = `https://www.google.com/maps/dir/${lat},${lng}/${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}`;
+                        window.open(googleMapsUrl, '_blank');
+                    },
+                    () => {
+                        // 現在地取得失敗時は駅からのルートを表示
+                        const googleMapsUrl = `https://www.google.com/maps/dir/${STATION_LOCATION.lat},${STATION_LOCATION.lng}/${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}`;
+                        window.open(googleMapsUrl, '_blank');
+                    }
+                );
+            } else {
+                // 駅からのルートを表示
+                const googleMapsUrl = `https://www.google.com/maps/dir/${STATION_LOCATION.lat},${STATION_LOCATION.lng}/${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}`;
+                window.open(googleMapsUrl, '_blank');
+            }
+        }
+
+        // 印刷用に静的マップを強制表示
+        window.addEventListener('beforeprint', () => {
+            showStaticMap();
+        });
+    </script>
+</body>
+</html>
