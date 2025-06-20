@@ -23,12 +23,12 @@
         }
         .header {
             text-align: center;
-            border-bottom: 3px solid #e60012;
+            border-bottom: 3px solid #00A040;
             padding-bottom: 15px;
             margin-bottom: 25px;
         }
         .header h1 {
-            color: #e60012;
+            color: #00A040;
             font-size: 24px;
             margin: 0 0 10px 0;
             font-weight: bold;
@@ -96,17 +96,17 @@
             color: #333;
         }
         .landmark {
-            color: #e60012;
+            color: #00A040;
             font-weight: bold;
         }
         .shop-info {
-            background: #fff0f0;
+            background: #f0f9f4;
             padding: 20px;
             border-radius: 8px;
-            border-left: 4px solid #e60012;
+            border-left: 4px solid #00A040;
         }
         .shop-info h3 {
-            color: #e60012;
+            color: #00A040;
             margin: 0 0 15px 0;
             font-size: 18px;
             display: flex;
@@ -248,20 +248,20 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
         .map-control-btn.primary {
-            background: rgba(0, 102, 204, 0.95);
+            background: rgba(0, 160, 64, 0.95);
             color: white;
-            border-color: #0066cc;
+            border-color: #00A040;
         }
         .map-control-btn.primary:hover {
-            background: #0066cc;
+            background: #00A040;
         }
         .map-control-btn.secondary {
-            background: rgba(230, 0, 18, 0.95);
+            background: rgba(0, 128, 48, 0.95);
             color: white;
-            border-color: #e60012;
+            border-color: #008030;
         }
         .map-control-btn.secondary:hover {
-            background: #e60012;
+            background: #008030;
         }
         .interactive-map {
             width: 100%;
@@ -290,8 +290,8 @@
         }
         .address-input:focus {
             outline: none;
-            border-color: #0066cc;
-            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+            border-color: #00A040;
+            box-shadow: 0 0 0 2px rgba(0, 160, 64, 0.1);
         }
         @media print {
             .map-controls-overlay,
@@ -330,7 +330,7 @@
                 
                 <!-- Loading indicator -->
                 <div id="mapLoading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.9); padding: 20px; border-radius: 8px; text-align: center;">
-                    <div style="font-size: 18px; color: #0066cc; margin-bottom: 10px;">📍</div>
+                    <div style="font-size: 18px; color: #00A040; margin-bottom: 10px;">📍</div>
                     <div style="color: #666;">最適なルートを計算中...</div>
                 </div>
                 
@@ -560,9 +560,9 @@
             const zoom = '16';
             const apiKey = 'AIzaSyAGUorGUfy--oERdupd_6FoUQc-xFR5WbE';
             
-            // マーカー設定
+            // マーカー設定 - 駅は青、店舗はトヨタグリーン
             const startMarker = `markers=color:blue%7Clabel:S%7C${STATION_LOCATION.lat},${STATION_LOCATION.lng}`;
-            const endMarker = `markers=color:red%7Clabel:G%7C${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}`;
+            const endMarker = `markers=color:0x00A040%7Clabel:G%7C${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}`;
             
             // パス設定
             let pathParam;
@@ -587,9 +587,9 @@
             const mapImage = document.getElementById('staticMapImage');
             const loadingDiv = document.getElementById('mapLoading');
             
-            mapImage.src = `https://maps.googleapis.com/maps/api/staticmap?size=600x400&maptype=roadmap&markers=color:blue%7Clabel:S%7C${STATION_LOCATION.lat},${STATION_LOCATION.lng}&markers=color:red%7Clabel:G%7C${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}&zoom=16&key=AIzaSyAGUorGUfy--oERdupd_6FoUQc-xFR5WbE`;
+            mapImage.src = `https://maps.googleapis.com/maps/api/staticmap?size=600x400&maptype=roadmap&markers=color:blue%7Clabel:S%7C${STATION_LOCATION.lat},${STATION_LOCATION.lng}&markers=color:0x00A040%7Clabel:G%7C${SHOP_LOCATION.lat},${SHOP_LOCATION.lng}&zoom=16&key=AIzaSyAGUorGUfy--oERdupd_6FoUQc-xFR5WbE`;
             
-            loadingDiv.innerHTML = '<div style="color: #e60012;">マップを読み込み中...</div>';
+            loadingDiv.innerHTML = '<div style="color: #00A040;">マップを読み込み中...</div>';
             setTimeout(() => {
                 loadingDiv.style.display = 'none';
             }, 2000);
